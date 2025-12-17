@@ -26,7 +26,7 @@ pipeline {
                 echo 'Another echo to make the pipeline a bit more complex'
                 registerBuildArtifactMetadata(
                     name: "Backend-CBCI",
-                    version: "4.0.0",
+                    version: "5.0.0",
                     type: "docker",
                     url: "http://localhost:2001",
                     digest: "6f637064707039346163663237383938",
