@@ -27,7 +27,7 @@ pipeline {
                     echo 'Another echo to make the pipeline a bit more complex'
                     def artifactId = registerBuildArtifactMetadata(
                         name: "Backend-CBCI",
-                        version: "12.26",
+                        version: "12.27",
                         type: "docker",
                         url: "http://localhost:2001",
                         digest: "6f637064707039346163663237383938",
