@@ -8,7 +8,7 @@ pipeline {
                 stage('Compile') {
                     steps {
                         echo 'Compiling...'
-                        sleep 10
+                        sleep 5
                     }
                 }
                 stage('Package') {
@@ -22,16 +22,21 @@ pipeline {
 
         stage('Registering build artifact') {
             steps {
-                echo 'Registering the metadata'
-                echo 'Another echo to make the pipeline a bit more complex'
-                registerBuildArtifactMetadata(
-                    name: "Backend-CBCI",
-                    version: "12.25",
-                    type: "docker",
-                    url: "http://localhost:2001",
-                    digest: "6f637064707039346163663237383938",
-                    label: "new-artifact"
-                )
+                script {
+                    echo 'Registering the metadata'
+                    echo 'Another echo to make the pipeline a bit more complex'
+                    def artifactId = registerBuildArtifactMetadata(
+                        name: "Backend-CBCI",
+                        version: "12.26",
+                        type: "docker",
+                        url: "http://localhost:2001",
+                        digest: "6f637064707039346163663237383938",
+                        label: "new-artifact"
+                    )
+                    echo "Artifact Id is: ${artifactId}"
+                    env.ARTIFACT_ID = artifactId
+                    sleep 3
+                }
             }
         }
 
@@ -48,6 +53,26 @@ pipeline {
                 # Run Trivy scan and save SARIF report
                 ./trivy fs . --format sarif --output trivy-results.sarif || true
                 '''
+            }
+        }
+        stage('Deploy to Preprod') {
+            steps {
+                echo 'Deploying...'
+                registerDeployedArtifactMetadata(
+                    artifactId: "${env.ARTIFACT_ID}",
+                    targetEnvironment: "pre-prod",
+                    labels: "pre-prod"
+                )
+            }
+        }
+        stage('Deploy to QA') {
+            steps {
+                echo 'Deploying...'
+                registerDeployedArtifactMetadata(
+                    artifactId: "${env.ARTIFACT_ID}",
+                    targetEnvironment: "qa",
+                    labels: "qa"
+                )
             }
         }
     }
